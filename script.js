@@ -17,17 +17,30 @@ acr_bace = 1
 acr_leval = 1
 acr_add_about = 1
 
+acr_delay = 5000; //5 secounds
+
 //achvemnts
 ac_bigger_button = false
 ac_unlock_helper = false
 
-ac_silver_button = false
-ac_gold_button = false
-ac_platnum_button = false
+ac_silver_button = false //lv.2
+ac_gold_button = false //lv.3
+ac_platnum_button = false //lv.4
+ac_rubie_button = false //lv.5
+ac_sapphire_button = false //lv.6
+ac_emerald_button = false //lv.7
+ac_diamond_button = false //lv.8
+
+ac_button_leval = 1;
 
 ac_100000_milestone = false
 ac_1mil_milestone = false
 ac_10mil_milestone = false
+
+//debug settings:
+Dont_Load_data = false; //if true it wount load your safe data (esenchiley restarting your game)
+inf_money = false; //if true you will have inf money
+unlock_all_achevemnts = false; //if enabold unlock all achevments
 
 function click() {
     //runns evry time the main click me button is pressed
@@ -85,14 +98,22 @@ function buy_auto_clicker() {
 function auto_clicker_tick() { 
     score = score + calculate_income_from_click()*acr_bace;
     update();
+    
+    setTimeout(auto_clicker_tick, acr_delay);
+    console.log(acr_delay)
+    
+    
 }
 
 
 
 //updating stuff ---------------------------------------------------------
-function update() {
-    check_for_achevemts();
+function update(skip_achvemnt,force_run_achevments=false) { //rforce means if achevment is set as true run it
+    check_for_achevemts(skip_achvemnt,force_run_achevments);
     update_vishuwals();
+
+    if (inf_money==true) {score=9007199254740991;}
+    
 }
 
 function update_vishuwals() {
@@ -104,7 +125,7 @@ function update_vishuwals() {
 
     //upgrade button vishuwals
     //--------------------------------
-    mutiplyer_upgrade_b.innerHTML = "+"+mround(Mutiplyer_upgrade_reword) + " PC - "+mround(Mutiplyer_upgrade_cost)+" Clicks | Level: "+Mutiplyer_leval;
+    mutiplyer_upgrade_b.innerHTML = "+"+mround(Mutiplyer_upgrade_reword*calclate_mutiplyer()) + " PC - "+mround(Mutiplyer_upgrade_cost)+" Clicks | Level: "+Mutiplyer_leval;
     
     if (score >= Mutiplyer_upgrade_cost) { // reguler upgrade vishuwal
         mutiplyer_upgrade_b.style.backgroundColor = "green";
@@ -123,7 +144,7 @@ function update_vishuwals() {
 
     //auto clicker button vishuwals
     if (ac_unlock_helper == true) {
-        AutoClicker_D.innerHTML = "Auto Clickers: "+acr_leval+  " | +"+mround(calculate_income_from_click(false)*acr_bace)+" CPS";
+        AutoClicker_D.innerHTML = "Auto Clickers: "+acr_leval+  " | +"+mround(calculate_income_from_click(false)*acr_bace)+" | Every "+mround(acr_delay/1000)+"s";
         AutoClicker_b.innerHTML = "+1 CPS - "+acr_cost+" Clicks | Lv."+acr_leval;
 
         if (score >= acr_cost) {
@@ -135,56 +156,144 @@ function update_vishuwals() {
     //--------------------------------
 }
 
-function check_for_achevemts() {
+function check_for_achevemts(skip_achvemnt,force_run_achevments) {
+
+
+    function force_chevment_check(variable, func) {
+        //when ofrce_run_achevemnt is active (when loading save data) if a achevemnt is saved as true run it (Skiping check for reqirements)
+        if (force_run_achevments == true && window[variable] == true) {
+            func();
+            window[variable] = true;
+        }
+    }
+
     //checks for achevments
 
-    //bigger button
-    if (ac_bigger_button==false) {if (score>=100) { ac_bigger_button=true; achevment_window("Achievement unlocked! 100 Big ones - reward bigger button");
-            button.style.width = "350px";
-            button.style.height = "350px";
-            button.style.borderBlockWidth = 20;
+    //bigger button --- --- ---
+    force_chevment_check('ac_bigger_button', biggger_button);
+    //funshon when its unlocked
+    function biggger_button() {
+        button.style.width = "350px";
+        button.style.height = "350px";
+        button.style.borderBlockWidth = 20;
+    }
+    //unlock check
+    if (ac_bigger_button==false) {if (score>=100) { ac_bigger_button=true; achevment_window("Achievement unlocked! 100 Big ones - reward bigger button",skip_achvemnt);
+            biggger_button();//unlocks achevemnt after checks
     }}
 
-    //unlock auto clicker
+    //unlock auto clicker --- --- ---
+    force_chevment_check('ac_unlock_helper', auto_clicker_unlock);
+    function auto_clicker_unlock() {
+        AutoClicker_D.style.visibility = "visible";
+        auto_clicker_tick(); //starts auto clicker loop
+    }
+
     if (ac_unlock_helper==false) {
         //make it locked
+        if (ac_unlock_helper==false) {
         AutoClicker_b.innerHTML = "- - - locked - - -";
         AutoClicker_b.style.backgroundColor = "gray";
         AutoClicker_D.style.visibility = "hidden";
+        } 
         
         //achevemnt
-        if (Mutiplyer_leval>=20) { ac_unlock_helper=true; achevment_window("Achevment unlocked! Need a hand? - reward auto cliker");
-        AutoClicker_D.style.visibility = "visible";
-        var intervalId = window.setInterval(function(){ auto_clicker_tick() }, 1000);
+        if (Mutiplyer_leval>=20) { ac_unlock_helper=true; achevment_window("Achevment unlocked! Need a hand? - reward auto cliker",skip_achvemnt);
+        auto_clicker_unlock();
     }} 
 
+    //Buttons  --- --- ---
+
     //silver button
-    if (ac_silver_button==false) {if (score>=500) {ac_silver_button=true; achevment_window("Achevment unlocked! A weathey man needs a weathey button - reward silver button with 25% chance to give triple cash");
+    force_chevment_check('ac_silver_button', uc_silver_button);
+    function uc_silver_button() {
         button.style.backgroundColor = "silver";
-        
+        ac_button_leval+=1;
+    }
+    if (ac_silver_button==false) {if (score>=1000) {ac_silver_button=true; achevment_window("Achevment unlocked! A weathey man needs a weathey button - reward silver button with 25% chance to give triple cash",skip_achvemnt);
+        uc_silver_button();
     }}
     //gold button
-    if (ac_gold_button==false) {if (score>=2500) {ac_gold_button=true; achevment_window("Achevment unlocked! A rich man needs a rich button - reward gold button with 50% chance to give triple cash");
+    force_chevment_check('ac_gold_button', uc_gold_button);
+    function uc_gold_button() {
         button.style.backgroundColor = "gold";
-        
+        ac_button_leval+=1;
+    }
+    if (ac_gold_button==false) {if (score>=5000) {ac_gold_button=true; achevment_window("Achevment unlocked! A rich man needs a rich button - reward gold button with 50% chance to give triple cash",skip_achvemnt);
+        uc_gold_button();
     }}
     //platnum button
-    if (ac_platnum_button==false) {if (score>=5000) {ac_platnum_button=true; achevment_window("Achevment unlocked! The rich ... just get richer - reward platnum button that gives triple cash");
+    force_chevment_check('ac_platnum_button', uc_platnum_button);
+    function uc_platnum_button() {
         button.style.backgroundColor = "rgba(176, 176, 176, 1)";
+        ac_button_leval+=1;
+    }
+    if (ac_platnum_button==false) {if (score>=10000) {ac_platnum_button=true; achevment_window("Achevment unlocked! The rich ... just get richer - reward platnum button that gives triple cash",skip_achvemnt);
+        uc_platnum_button();
+    }}
+
+    //rubie button
+    force_chevment_check('ac_rubie_button', uc_rubie_button);
+    function uc_rubie_button() {
+        button.style.backgroundColor = "rgb(240, 27, 27)";
+        ac_button_leval+=1;
+        acr_delay=4000; //change auto clicker speed
+    }
+    if (ac_rubie_button==false) {if (score>=50000) {ac_rubie_button=true; achevment_window("Achevment unlocked! Money is not a object.  - reward ruby button + decres delay for auto clickers by 1s",skip_achvemnt);
+        uc_rubie_button();
+    }}
+
+    //Sapphire button
+    force_chevment_check('ac_sapphire_button', uc_sapphire_button);
+    function uc_sapphire_button() {
+        button.style.backgroundColor = "rgb(13, 51, 218)";
+        ac_button_leval+=1;
+        acr_delay=3000; //change auto clicker speed
+    }
+    if (ac_sapphire_button==false) {if (score>=100000) {ac_sapphire_button=true; achevment_window("Achevment unlocked! I hear you like shiney things.  - reward Sapphire button + decrease delay for auto clickers by 1s",skip_achvemnt);
+        uc_sapphire_button();
+    }}
+
+    //Emerald button
+    force_chevment_check('ac_emerald_button', uc_emerald_button);
+    function uc_emerald_button() {
+        button.style.backgroundColor = "rgb(58, 165, 93)";
+        ac_button_leval+=1;
+        acr_delay=2000; //change auto clicker speed
+    }
+    if (ac_emerald_button==false) {if (score>=500000) {ac_emerald_button=true; achevment_window("Achevment unlocked! Minecraft anyone?.  - reward Emerald button + decrease delay for auto clickers by 1s",skip_achvemnt);
+        uc_emerald_button();
+    }}
+
+    //Diamond button
+    force_chevment_check('ac_diamond_button', uc_diamond_button);
+    function uc_diamond_button() {
+        button.style.backgroundColor = "rgb(185, 242, 255)";
+        ac_button_leval+=1;
+        acr_delay=1000; //change auto clicker speed
+    }
+    if (ac_diamond_button==false) {if (score>=1000000) {ac_diamond_button=true; achevment_window("Achevment unlocked! 1MIL! For your hard work I give you the pinnacle of buttons - reward diamond button + decrease delay for auto clickers by 1s + 5x Clicks!",skip_achvemnt);
+        uc_diamond_button();
+    }}
+    
+
+    //shine (platum and up)
+    if (ac_button_leval>=4) {
         button_shine(true);
-        
-    }else {button_shine(false);}}
+    } else {button_shine(false);}
+
+    //milestones --- --- ---
 
     //100000 milestone
-    if (ac_100000_milestone==false) {if (score>=100000) {ac_100000_milestone=true; achevment_window("... ok you can stop know. Theres no more to do");
+    if (ac_100000_milestone==false) {if (score>=2000000) {ac_100000_milestone=true; achevment_window("... ok you can stop know. Theres no more to do",skip_achvemnt);
     }}
 
     //1mil milestone
-    if (ac_1mil_milestone==false) {if (score>=1000000) {ac_1mil_milestone=true; achevment_window("Ok 1mil this is INSANE go tuch grass ... please!");
+    if (ac_1mil_milestone==false) {if (score>=10000000) {ac_1mil_milestone=true; achevment_window("Ok 10mil this is INSANE go tuch grass ... please!",skip_achvemnt);
     }}
 
     //10mil milestone
-    if (ac_10mil_milestone==false) {if (score>=10000000) {ac_10mil_milestone=true; achevment_window("10mil ok then you win! Thanks for playing my game! Credis: Alex Sylling - proggramer/designer, You - player/tester, Made by AJ. Studios. Thank you for playing my game. now GO OUT SIDE!");
+    if (ac_10mil_milestone==false) {if (score>=100000000) {ac_10mil_milestone=true; achevment_window("100mil ok then you win! Thanks for playing my game! Credis: Alex Sylling - proggramer/designer, You - player/tester, Made by AJ. Studios. Thank you for playing my game. now GO OUT SIDE!",skip_achvemnt);
     }}
 
 
@@ -211,25 +320,39 @@ function mround(number) {
 const overlay = document.getElementById('overlay');
 const textBox = document.getElementById('text-box');
 
-function achevment_window(text) {
+function achevment_window(text,skip=false) {
+    if (skip==false) {
     textBox.innerHTML = `<p>${text}</p><button onclick="achevment_window_close()">Continue</button>`;
     overlay.style.display = 'flex';
+    }
 }
 
 function achevment_window_close() {
     overlay.style.display = 'none';
 }
 
-function calculate_income_from_click(random=true) {
+function calculate_income_from_click(random=true) { //reutrn a number for click after calcualshons
     to_return = bace_mutiplyer;
 
     //button chances
-    if (random==true) { //only do this if random is true
-    if (ac_platnum_button==true) {if (Math.random() * 100 < 100) {to_return*=3; console.log("platnum");}} else { //platnum button chance
-    if (ac_gold_button==true) {if (Math.random() * 100 < 50) {to_return*=3; console.log("gold");}} else { //gold button chance
-    if (ac_silver_button==true) {if (Math.random() * 100 < 25) {to_return*=3; console.log("silver");}} //silver button chance
-    }}}  else if (ac_platnum_button==true) {    to_return*=3} //still do the planum becus its 100% chance
+    if (random==true && ac_button_leval <=3) {  //only do this if random is true
+    if (ac_button_leval==4) {if (Math.random() * 100 < 100) {to_return*=3;}}  //platnum button chance
+    if (ac_button_leval==3) {if (Math.random() * 100 < 50) {to_return*=3;}} //gold button chance
+    if (ac_button_leval==2) {if (Math.random() * 100 < 25) {to_return*=3;}} //silver button chance
+    }
+    //perminent gane checks
+    if (ac_button_leval>=4 && ac_button_leval <8) {to_return*=3;} //plat thru emrald x3
+    if (ac_button_leval>=8) {to_return*=5;} //dimond x5
+
     
+    return to_return;
+}
+
+function calclate_mutiplyer() {
+    //the mutipyer of the number
+    to_return = 1;
+    if (ac_button_leval>=4 && ac_button_leval <8) {to_return=3;}
+    if (ac_button_leval>=8) {to_return=5;}
     return to_return;
 }
 
@@ -248,75 +371,105 @@ function save_loop() {
     setTimeout(save_loop, 5000);
 }
 
+function saveVar(varName) {
+    const savedState = localStorage.getItem('gameState');
+    let gameState = savedState ? JSON.parse(savedState) : {};
+    gameState[varName] = window[varName];
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+}
+
+// Helper function to load a single variable
+function loadVar(varName) {
+    const savedState = localStorage.getItem('gameState');
+    if (savedState) {
+        const gameState = JSON.parse(savedState);
+        if (gameState.hasOwnProperty(varName)) {
+            window[varName] = gameState[varName];
+        }
+    }
+}
+
+
+
+
+
 // Save all variables to local storage
 function saveToLocalStorage() {
-    const gameState = {
-        score,
-        bace_mutiplyer,
-        Mutiplyer_upgrade_cost,
-        Mutiplyer_leval,
-        Mutiplyer_upgrade_reword,
-        Mutiplyer_upgrade_cost_increas,
-        Mutiplyer_evolshon_crent_step,
-        Mutiplyer_evolshon_leval_steps,
-        Mutiplyer_evolshon_reword,
-        acr_cost,
-        acr_bace,
-        acr_leval,
-        acr_add_about,
-        ac_bigger_button,
-        ac_unlock_helper,
-        ac_silver_button,
-        ac_gold_button,
-        ac_platnum_button,
-        ac_100000_milestone,
-        ac_1mil_milestone,
-        ac_10mil_milestone
-    };
-    localStorage.setItem('gameState', JSON.stringify(gameState));
-    console.log("Game saved:", gameState);
+    saveVar('score');
+    saveVar('bace_mutiplyer');
+    saveVar('Mutiplyer_upgrade_cost');
+    saveVar('Mutiplyer_leval');
+    saveVar('Mutiplyer_upgrade_reword');
+    saveVar('Mutiplyer_upgrade_cost_increas');
+    saveVar('Mutiplyer_evolshon_crent_step');
+    saveVar('Mutiplyer_evolshon_leval_steps');
+    saveVar('Mutiplyer_evolshon_reword');
+    saveVar('acr_cost');
+    saveVar('acr_bace');
+    saveVar('acr_leval');
+    saveVar('acr_add_about');
+    saveVar('ac_bigger_button');
+    saveVar('ac_unlock_helper');
+
+    saveVar('ac_silver_button');
+    saveVar('ac_gold_button');
+    saveVar('ac_platnum_button');
+    saveVar('ac_rubie_button')
+    saveVar('ac_sapphire_button')
+    saveVar('ac_emerald_button')
+    saveVar('ac_diamond_button')
+
+    saveVar('ac_100000_milestone');
+    saveVar('ac_1mil_milestone');
+    saveVar('ac_10mil_milestone');
+    console.log("Game saved");
     
 }
 
 // Load all variables from local storage
 function loadFromLocalStorage() {
-    const savedState = localStorage.getItem('gameState');
-    if (savedState) {
-        const gameState = JSON.parse(savedState);
-        score = gameState.score;
-        bace_mutiplyer = gameState.bace_mutiplyer;
-        Mutiplyer_upgrade_cost = gameState.Mutiplyer_upgrade_cost;
-        Mutiplyer_leval = gameState.Mutiplyer_leval;
-        Mutiplyer_upgrade_reword = gameState.Mutiplyer_upgrade_reword;
-        Mutiplyer_upgrade_cost_increas = gameState.Mutiplyer_upgrade_cost_increas;
-        Mutiplyer_evolshon_crent_step = gameState.Mutiplyer_evolshon_crent_step;
-        Mutiplyer_evolshon_leval_steps = gameState.Mutiplyer_evolshon_leval_steps;
-        Mutiplyer_evolshon_reword = gameState.Mutiplyer_evolshon_reword;
-        acr_cost = gameState.acr_cost;
-        acr_bace = gameState.acr_bace;
-        acr_leval = gameState.acr_leval;
-        acr_add_about = gameState.acr_add_about;
-        ac_bigger_button = gameState.ac_bigger_button;
-        ac_unlock_helper = gameState.ac_unlock_helper;
-        ac_silver_button = gameState.ac_silver_button;
-        ac_gold_button = gameState.ac_gold_button;
-        ac_platnum_button = gameState.ac_platnum_button;
-        ac_100000_milestone = gameState.ac_100000_milestone;
-        ac_1mil_milestone = gameState.ac_1mil_milestone;
-        ac_10mil_milestone = gameState.ac_10mil_milestone;
-    }
+    loadVar('score');
+    loadVar('bace_mutiplyer');
+    loadVar('Mutiplyer_upgrade_cost');
+    loadVar('Mutiplyer_leval');
+    loadVar('Mutiplyer_upgrade_reword');
+    loadVar('Mutiplyer_upgrade_cost_increas');
+    loadVar('Mutiplyer_evolshon_crent_step');
+    loadVar('Mutiplyer_evolshon_leval_steps');
+    loadVar('Mutiplyer_evolshon_reword');
+    loadVar('acr_cost');
+    loadVar('acr_bace');
+    loadVar('acr_leval');
+    loadVar('acr_add_about');
+    loadVar('ac_bigger_button');
+    loadVar('ac_unlock_helper');
+
+    loadVar('ac_silver_button');
+    loadVar('ac_gold_button');
+    loadVar('ac_platnum_button');
+    loadVar('ac_rubie_button');
+    loadVar('ac_sapphire_button')
+    loadVar('ac_emerald_button')
+    loadVar('ac_diamond_button')
+
+    loadVar('ac_100000_milestone');
+    loadVar('ac_1mil_milestone');
+    loadVar('ac_10mil_milestone');
 }
 
 // Call loadFromLocalStorage when the page loads
 window.onload = function() {
-    loadFromLocalStorage();
-    update(); // Update the UI with the loaded values
+    if (Dont_Load_data==false) {
+    loadFromLocalStorage(); }
+    update(true,true); // Update the UI with the loaded values and load achevemnts that were saved
     save_loop(); // Start the save loop
 }
 //---------------------------------------------------------------------------
 
+//Runns the ferst time the game loads
 
+//unlocks all achevemnts
+if (unlock_all_achevemnts==true) {ac_bigger_button = true;ac_unlock_helper = true;ac_silver_button = true;ac_gold_button = true ;ac_platnum_button = true ;ac_rubie_button = true ;ac_sapphire_button = true ;ac_emerald_button = true ;ac_diamond_button = true ;ac_100000_milestone = true;ac_1mil_milestone = true;ac_10mil_milestone = true;}
 
-
-//updates when page is done loading
 update();
+
