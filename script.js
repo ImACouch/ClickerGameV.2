@@ -100,9 +100,6 @@ function auto_clicker_tick() {
     update();
     
     setTimeout(auto_clicker_tick, acr_delay);
-    console.log(acr_delay)
-    
-    
 }
 
 
@@ -154,6 +151,8 @@ function update_vishuwals() {
         }
     }
     //--------------------------------
+    //updates the porggres bar for buttons
+    updatebuttonproggresBar_fromArray();
 }
 
 function check_for_achevemts(skip_achvemnt,force_run_achevments) {
@@ -210,7 +209,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         button.style.backgroundColor = "silver";
         ac_button_leval+=1;
     }
-    if (ac_silver_button==false) {if (score>=1000) {ac_silver_button=true; achevment_window("Achevment unlocked! A weathey man needs a weathey button - reward silver button with 25% chance to give triple cash",skip_achvemnt);
+    if (ac_silver_button==false) {if (score>=750) {ac_silver_button=true; achevment_window("Achevment unlocked! A weathey man needs a weathey button - reward silver button with 25% chance to give triple cash",skip_achvemnt);
         uc_silver_button();
     }}
     //gold button
@@ -219,7 +218,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         button.style.backgroundColor = "gold";
         ac_button_leval+=1;
     }
-    if (ac_gold_button==false) {if (score>=5000) {ac_gold_button=true; achevment_window("Achevment unlocked! A rich man needs a rich button - reward gold button with 50% chance to give triple cash",skip_achvemnt);
+    if (ac_gold_button==false) {if (score>=2500) {ac_gold_button=true; achevment_window("Achevment unlocked! A rich man needs a rich button - reward gold button with 50% chance to give triple cash",skip_achvemnt);
         uc_gold_button();
     }}
     //platnum button
@@ -228,7 +227,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         button.style.backgroundColor = "rgba(176, 176, 176, 1)";
         ac_button_leval+=1;
     }
-    if (ac_platnum_button==false) {if (score>=10000) {ac_platnum_button=true; achevment_window("Achevment unlocked! The rich ... just get richer - reward platnum button that gives triple cash",skip_achvemnt);
+    if (ac_platnum_button==false) {if (score>=5000) {ac_platnum_button=true; achevment_window("Achevment unlocked! The rich ... just get richer - reward platnum button that gives triple cash",skip_achvemnt);
         uc_platnum_button();
     }}
 
@@ -239,7 +238,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         ac_button_leval+=1;
         acr_delay=4000; //change auto clicker speed
     }
-    if (ac_rubie_button==false) {if (score>=50000) {ac_rubie_button=true; achevment_window("Achevment unlocked! Money is not a object.  - reward ruby button + decres delay for auto clickers by 1s",skip_achvemnt);
+    if (ac_rubie_button==false) {if (score>=25000) {ac_rubie_button=true; achevment_window("Achevment unlocked! Money is not a object.  - reward ruby button + decres delay for auto clickers by 1s",skip_achvemnt);
         uc_rubie_button();
     }}
 
@@ -250,7 +249,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         ac_button_leval+=1;
         acr_delay=3000; //change auto clicker speed
     }
-    if (ac_sapphire_button==false) {if (score>=100000) {ac_sapphire_button=true; achevment_window("Achevment unlocked! I hear you like shiney things.  - reward Sapphire button + decrease delay for auto clickers by 1s",skip_achvemnt);
+    if (ac_sapphire_button==false) {if (score>=50000) {ac_sapphire_button=true; achevment_window("Achevment unlocked! I hear you like shiney things.  - reward Sapphire button + decrease delay for auto clickers by 1s",skip_achvemnt);
         uc_sapphire_button();
     }}
 
@@ -261,7 +260,7 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
         ac_button_leval+=1;
         acr_delay=2000; //change auto clicker speed
     }
-    if (ac_emerald_button==false) {if (score>=500000) {ac_emerald_button=true; achevment_window("Achevment unlocked! Minecraft anyone?.  - reward Emerald button + decrease delay for auto clickers by 1s",skip_achvemnt);
+    if (ac_emerald_button==false) {if (score>=75000) {ac_emerald_button=true; achevment_window("Achevment unlocked! Minecraft anyone?.  - reward Emerald button + decrease delay for auto clickers by 1s",skip_achvemnt);
         uc_emerald_button();
     }}
 
@@ -297,6 +296,9 @@ function check_for_achevemts(skip_achvemnt,force_run_achevments) {
     }}
 
 
+    
+
+
 }
 
 //data display links
@@ -310,7 +312,7 @@ const Mutiplyer_display = document.getElementById('PCtext'); // the display show
 
 
 
-//utillity functions
+//utillity functions --------------------------------------------
 function mround(number) {
     return Math.round(number * 100) / 100
 }
@@ -329,6 +331,7 @@ function achevment_window(text,skip=false) {
 
 function achevment_window_close() {
     overlay.style.display = 'none';
+    updatebuttonproggresBar_fromArray(); //update button proggress bar
 }
 
 function calculate_income_from_click(random=true) { //reutrn a number for click after calcualshons
@@ -364,7 +367,55 @@ function button_shine(on=true) {
     }
 }
 
-//Saving and loading from local stroige ---------------------------------------------------------------------------
+//achevemnt proggress  bar
+let score_achevemnts = [];
+
+function add_button_to_bar(target_score,commpleated,name="bronze") {
+    // Adding element (commpleted, target_score)
+    score_achevemnts.push([commpleated, target_score,name]);
+
+    //score_achevemnts.splice(score_achevemnts.indexOf(3), 1); // Removes the element 3
+}
+function updatebuttonproggresBar_fromArray() {
+    if (score_achevemnts.length > 0) {
+        // Initialize c_item to a high target score and empty name
+        let c_item = [false, Infinity, ""];
+
+        // Looking for the lowest goal
+        for (let item of score_achevemnts) {
+            if (item[0] === false && item[1] < c_item[1]) {
+                c_item = item;
+            }
+        }
+
+        // Update the progress bar with the current target goal
+        updateProgressBar(score, c_item[1], c_item[2]);
+        
+        // Check if the current item is completed
+        if (score >= c_item[1]) {
+            c_item[0] = true; // Update the commpleated value to true
+        }
+
+    } else {
+        // If there are no achievements in queue
+        updateProgressBar(100, 100, "none", "green", true);
+    }
+}
+
+function updateProgressBar(currentValue, totalValue, name, barcolor = "green", end = false) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const percentage = (currentValue / totalValue) * 100;
+    progressBar.style.width = percentage + '%';
+    progressBar.style.backgroundColor = barcolor;
+    progressText.innerHTML = mround(totalValue - currentValue) + ' Clicks until ' + name;
+    if (end == true || totalValue>=Infinity) {
+        // If no more achievements
+        progressText.innerHTML = 'No More Buttons to unlock!';
+    }
+}
+
+//Saving and loading from local stroige -------------------------------------------------- -------------------------
 
 function save_loop() {
     saveToLocalStorage();
@@ -390,7 +441,16 @@ function loadVar(varName) {
 }
 
 
-
+function load_button_proggress_bar() {
+    add_button_to_bar(100,ac_bigger_button,"Large Button");
+    add_button_to_bar(750,ac_silver_button,"Silver Buttton");
+    add_button_to_bar(2500,ac_gold_button,"Gold Buttton");
+    add_button_to_bar(5000,ac_platnum_button,"Platnum Buttton");
+    add_button_to_bar(25000,ac_rubie_button,"Rubie Buttton");
+    add_button_to_bar(50000,ac_sapphire_button,"Sapphire Buttton");
+    add_button_to_bar(75000,ac_emerald_button,"Emerald Buttton");
+    add_button_to_bar(1000000,ac_diamond_button,"Diamond Buttton");
+}
 
 
 // Save all variables to local storage
@@ -463,13 +523,18 @@ window.onload = function() {
     loadFromLocalStorage(); }
     update(true,true); // Update the UI with the loaded values and load achevemnts that were saved
     save_loop(); // Start the save loop
+
+    start_up_ceacks();
 }
 //---------------------------------------------------------------------------
 
 //Runns the ferst time the game loads
 
 //unlocks all achevemnts
+function start_up_ceacks() {
 if (unlock_all_achevemnts==true) {ac_bigger_button = true;ac_unlock_helper = true;ac_silver_button = true;ac_gold_button = true ;ac_platnum_button = true ;ac_rubie_button = true ;ac_sapphire_button = true ;ac_emerald_button = true ;ac_diamond_button = true ;ac_100000_milestone = true;ac_1mil_milestone = true;ac_10mil_milestone = true;}
 
+load_button_proggress_bar() // losd button proggress bar
 update();
+}
 
